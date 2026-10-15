@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Placement Chance Predictor</title>
+<style>
+  body { font-family: system-ui, sans-serif; max-width: 520px; margin: 24px auto; padding: 0 16px; background: #f6f7fb; color: #1d1f27; }
+  h1 { font-size: 1.5rem; margin-bottom: 4px; }
+  .sub { color: #666; font-size: .9rem; margin-bottom: 16px; }
+  label { display: block; margin-top: 12px; font-weight: 600; font-size: .9rem; }
+  input { width: 100%; padding: 8px; font-size: 1rem; box-sizing: border-box; border: 1px solid #ccd; border-radius: 6px; }
+  button { margin-top: 18px; width: 100%; padding: 12px; font-size: 1rem; border: 0; border-radius: 8px; background: #3a5bd9; color: #fff; cursor: pointer; }
+  #out { margin-top: 20px; padding: 16px; background: #fff; border-radius: 10px; display: none; }
+  .big { font-size: 2.2rem; font-weight: 700; }
+  .note { margin-top: 20px; font-size: .78rem; color: #777; }
+</style>
+</head>
+<body>
+<h1>Placement Chance Predictor</h1>
+<div class="sub">Enter your numbers and see what the model says.</div>
+<label>CGPA (0-10)<input id="cgpa" type="number" step="0.1" value="7.5"></label>
+<label>DSA problems solved<input id="dsa_problems" type="number" value="100"></label>
+<label>Projects<input id="projects" type="number" value="2"></label>
+<label>Internships<input id="internships" type="number" value="0"></label>
+<label>Communication skills (1-10)<input id="communication" type="number" step="0.5" value="6"></label>
+<label>Active backlogs<input id="backlogs" type="number" value="0"></label>
+<button onclick="go()">Predict my chances</button>
+<div id="out"></div>
+<div class="note">Demo model trained on synthetic data for an MLOps class. It is not a real placement predictor, so please don't take it personally!</div>
+<script>
+async function go() {
+  const ids = ["cgpa","dsa_problems","projects","internships","communication","backlogs"];
+  const body = {};
+  ids.forEach(i => body[i] = Number(document.getElementById(i).value));
+  const out = document.getElementById("out");
+  out.style.display = "block";
+  try {
+    const r = await fetch("/predict", {method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify(body)});
+    if (!r.ok) { out.textContent = "Please check your inputs."; return; }
+    const d = await r.json();
+    out.innerHTML = "";
+    const big = document.createElement("div");
+    big.className = "big";
+    big.textContent = d.placement_chance_percent + "%";
+    const ul = document.createElement("ul");
+    d.tips.forEach(t => { const li = document.createElement("li"); li.textContent = t; ul.appendChild(li); });
+    out.append(big, document.createTextNode("Estimated placement chance"), ul);
+  } catch (e) { out.textContent = "Could not reach the server."; }
+}
+</script>
+</body>
+</html>

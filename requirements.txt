@@ -1,0 +1,9 @@
+scikit-learn==1.5.2
+pandas
+sqlalchemy<2.1
+joblib
+mlflow>=2.16,<3
+fastapi
+uvicorn
+httpx
+pytest
