@@ -35,7 +35,8 @@ with mlflow.start_run():
 
     mlflow.log_params({"n_estimators": args.n_estimators, "max_depth": args.max_depth})
     mlflow.log_metrics({"accuracy": acc, "f1": f1})
-    mlflow.sklearn.log_model(model, artifact_path="model")
+    mlflow.sklearn.log_model(model, artifact_path="model",
+                             skops_trusted_types=["sklearn.tree._tree.Tree"])
 
     joblib.dump(model, "model/model.joblib")
     print(f"n_estimators={args.n_estimators} max_depth={args.max_depth} "
